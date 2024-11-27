@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbousset <mbousset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 08:44:56 by mbousset          #+#    #+#             */
-/*   Updated: 2024/11/26 15:34:13 by mbousset         ###   ########.fr       */
+/*   Updated: 2024/11/27 14:11:39 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

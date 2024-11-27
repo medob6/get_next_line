@@ -3,53 +3,67 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbousset <mbousset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: codespace <codespace@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/21 08:41:25 by mbousset          #+#    #+#             */
-/*   Updated: 2024/11/26 15:45:45 by mbousset         ###   ########.fr       */
+/*   Updated: 2024/11/27 14:11:51 by codespace        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char	*handel_rest(int fd, char *buf, char **rest)
+int	read_fails(int fd, char *buf, char **rest)
+{
+	if (read(fd, 0, 0) == -1)
+	{
+		free(buf);
+		if (*rest != NULL)
+			free(*rest);
+		*rest = NULL;
+		return (1);
+	}
+	return (0);
+}
+
+char	*checkline_in_rest(char **rest)
 {
 	int	i;
 
 	i = 0;
-	if (!rest[fd])
-		return (NULL);
-	while (rest[fd][i] && rest[fd][i] != '\n')
-		i++;
-	if (rest[fd][i] == '\n')
-		return (free(buf), jbad_line(&rest[fd], i, 1));
+	if (*rest)
+	{
+		while ((*rest)[i] && (*rest)[i] != '\n')
+			i++;
+		if ((*rest)[i] == '\n')
+			return (jbad_line(rest, i, 1));
+	}
 	return (NULL);
 }
 
-char	*handel_buf(int fd, char *buf, char **rest)
+char	*proccess_buffer(int fd, char *buf, char **res)
 {
-	int		i;
-	ssize_t	n;
 	char	*temp;
+	int		n;
+	int		i;
 
 	n = 1;
 	while (n > 0)
 	{
 		n = read(fd, buf, BUFFER_SIZE);
+		if (n <= 0)
+			break ;
 		buf[n] = '\0';
-		temp = rest[fd];
-		rest[fd] = ft_strjoin(rest[fd], buf);
+		temp = *res;
+		*res = ft_strjoin(*res, buf);
 		free(temp);
-		if (!rest[fd])
-			return (free(buf), NULL);
+		if (!*res)
+			return (*res = NULL, NULL);
 		i = 0;
-		while (rest[fd][i] && rest[fd][i] != '\n')
+		while ((*res)[i] && (*res)[i] != '\n')
 			i++;
-		if (rest[fd][i] == '\n')
-			return (free(buf), jbad_line(&rest[fd], i, 1));
+		if ((*res)[i] == '\n')
+			return (jbad_line(res, i, 1));
 	}
-	if (n < 0)
-		return (free(buf), free(rest[fd]), rest[fd] = NULL, NULL);
 	return (NULL);
 }
 
@@ -57,26 +71,24 @@ char	*get_next_line(int fd)
 {
 	static char	*rest[1024];
 	char		*buf;
-	char		*result;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, NULL, 0) == -1)
-	{
-		if (rest[fd])
-			return (free(rest[fd]), rest[fd] = NULL, NULL);
-		return (rest[fd] = NULL, NULL);
-	}
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	buf = malloc(BUFFER_SIZE + 1);
 	if (!buf)
 		return (free(rest[fd]), rest[fd] = NULL, NULL);
-	line = handel_rest(fd, buf, rest);
+	line = checkline_in_rest(&rest[fd]);
 	if (line)
-		return (line);
-	result = handel_buf(fd, buf, rest);
-	if (result)
-		return (result);
-	if (!rest[fd] || !*rest[fd])
+		return (free(buf), line);
+	if (read_fails(fd, buf, &rest[fd]))
+		return (NULL);
+	line = proccess_buffer(fd, buf, &rest[fd]);
+	if (line)
+		return (free(buf), line);
+	if (line == NULL && (!rest[fd] || *rest[fd] == '\0'))
 		return (free(buf), free(rest[fd]), rest[fd] = NULL, NULL);
-	result = jbad_line(&rest[fd], ft_strlen(rest[fd]), 0);
-	return (free(buf), result);
+	line = jbad_line(&rest[fd], ft_strlen(rest[fd]), 0);
+	free(buf);
+	return (line);
 }
